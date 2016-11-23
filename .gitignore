@@ -1,0 +1,11 @@
+# DUB
+.dub
+docs.json
+__dummy.html
+*.o
+*.obj
+
+# Builds
+brainfuckd
+__test__library__
+libbrainfuckd.a

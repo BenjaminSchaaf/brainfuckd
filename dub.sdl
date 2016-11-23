@@ -1,0 +1,11 @@
+name "brainfuckd"
+description "A simple brainfuck interpreter."
+authors "Benjamin Schaaf"
+copyright "Copyright © 2016, Benjamin Schaaf"
+license "MIT"
+configuration "library" {
+    targetType "library"
+}
+configuration "application" {
+    targetType "executable"
+}
