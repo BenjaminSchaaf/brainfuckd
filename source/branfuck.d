@@ -76,13 +76,14 @@ struct Brainfuck(S, I) if (isBrainfuckSource!S && isBrainfuckInput!I) {
                     output = data;
                     return;
                 case ',':
-                    data = dropOne(input).front.to!ubyte;
+                    data = cast(ubyte)input.front;
+                    input.popFront();
                     break;
                 case '[':
-                    if (data == 0) findNext(1, '[', ']');
+                    if (data == 0) jumpNext();
                     break;
                 case ']':
-                    if (data != 0) findNext(-1, ']', '[');
+                    if (data != 0) jumpPrevious();
                     break;
                 default:
                     break;
@@ -103,30 +104,45 @@ struct Brainfuck(S, I) if (isBrainfuckSource!S && isBrainfuckInput!I) {
         return command;
     }
 
-    /**
-     * Find the next matching `decr` of a `incr`-`decr` pair,
-     * in the direction of `dir`
-     */
-    private void findNext(ptrdiff_t dir, char incr, char decr) {
+    private void jumpNext() {
         size_t stack = 0;
-        sourceLoc += dir * 2;
 
         while (true) {
-            enforce(sourceLoc < source.length);
-            enforce(sourceLoc >= 0);
+            enforce(sourceLoc < source.length, "Jumped past end");
 
-            auto command = source[sourceLoc];
-            sourceLoc += dir;
+            auto command = nextCommand();
 
-            if (command == incr) {
+            if (command == '[') {
                 stack++;
-            } else if (command == decr) {
+            } else if (command == ']') {
                 if (stack == 0) {
-                    source.popFront();
                     return;
                 }
                 stack--;
             }
+        }
+    }
+
+    private void jumpPrevious() {
+        size_t stack = 0;
+        sourceLoc -= 2;
+
+        while (true) {
+            enforce(sourceLoc > 0, "Jumped past start");
+
+            auto command = source[sourceLoc];
+
+            if (command == ']') {
+                stack++;
+            } else if (command == '[') {
+                if (stack == 0) {
+                    sourceLoc++;
+                    return;
+                }
+                stack--;
+            }
+
+            sourceLoc--;
         }
     }
 }
